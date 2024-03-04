@@ -1,0 +1,15 @@
+{
+  "name": "meowdybuddy",
+  "version": "1.0.0",
+  "description": "chatbot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "author": "Zh/Travis",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "tmi.js": "^1.8.5"
+  }
+}
