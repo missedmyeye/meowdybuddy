@@ -2,6 +2,7 @@ require('dotenv').config();
 const fs = require('fs');
 const fetch = require("node-fetch")
 const tmi = require('tmi.js');
+const { spawn } = require('child_process');
 
 var config = null
 
@@ -38,6 +39,32 @@ const excludedBots = process.env.BOT_LIST.split(',').map(bot => bot.toLowerCase(
 
 // Access the list of keywords from the environment variables
 const botMessages = JSON.parse(fs.readFileSync('bot_messages.json', 'utf8'));
+
+function pythonSpawn(){
+    // Spawn the Python process
+    const pythonProcess = spawn('python', [process.env.PYTHON_SCRIPT]);
+
+    // Event handler for receiving data from the Python process
+    pythonProcess.stdout.on('data', (data) => {
+        const response = data.toString().trim();
+        console.log('Received response from Python process:', response);
+
+        // Perform actions or send the response to the chat
+        twitchClient.say(process.env.TWITCH_CHANNEL, response);
+    });
+
+    // Event handler for handling errors in the Python process
+    pythonProcess.stderr.on('data', (data) => {
+        console.error('Error from Python process:', data.toString().trim());
+    });
+
+    // Event handler for when the Python process exits
+    pythonProcess.on('exit', (code, signal) => {
+        console.log(`Python process exited with code ${code} and signal ${signal}`);
+    });
+
+    return pythonProcess;
+};
 
 // Function to refresh the access token
 async function refreshAccessToken(refreshToken) {
@@ -123,6 +150,8 @@ async function connectClient() {
 async function main() {
     // Start connecting the client
     await connectClient();
+    // Start up Python process
+    const pythonProcess = pythonSpawn();
 
     twitchClient.on('message', async (channel, context, message) => {
         console.log('channel', {
@@ -151,6 +180,9 @@ async function main() {
                 twitchClient.say(channel, `Go check out @${context.username} at Twitch.tv/${context.username} Poooound`);
                 usersChatted.set(context.username, chatCount+1);
             };
+
+            // Send the message to the Python process for processing
+            pythonProcess.stdin.write(`${message}\n`);
         } else {
             // Auto-check and respond to bots
             for (const key of Object.keys(botMessages)) {
