@@ -10,13 +10,13 @@ def process_message(message):
     # Your logic for processing the message and generating a response
     # For now, just echoing the received message along with the previous message
     response = f"Hello, I have received your message '{message}'."
-    
+
     if previous_message:
         response += f" Previous message was '{previous_message}'."
-    
+
     # Update the previous_message variable
     previous_message = message
-    
+
     return response
 
 def main():
@@ -27,7 +27,8 @@ def main():
         # Process the message and print the response to standard output
         response = process_message(message)
         print(response)
-        sys.stdout.flush()  # Ensure the output is flushed to be immediately available to the Node.js process
+        # Ensure the output is flushed to be immediately available to the Node.js process
+        sys.stdout.flush()
 
 if __name__ == "__main__":
     main()

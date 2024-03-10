@@ -50,7 +50,7 @@ function pythonSpawn(){
         console.log('Received response from Python process:', response);
 
         // Perform actions or send the response to the chat
-        twitchClient.say(process.env.TWITCH_CHANNEL, response);
+        // twitchClient.say(process.env.TWITCH_CHANNEL, response);
     });
 
     // Event handler for handling errors in the Python process
@@ -135,15 +135,6 @@ async function connectClient() {
             await connectClient();
         } else {
             console.error('Error connecting to Twitch chat:', error);
-            // If unauthorized, try refreshing the access token
-            console.log('Refreshing access token...');
-            tokens = await refreshAccessToken(
-                config.refresh_token
-            );
-            // Reread config file and parse again
-            twitchClient = instantiateConfigs();
-            // Retry connecting with the updated access token
-            await connectClient();
         }
     }
 }
