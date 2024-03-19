@@ -47,10 +47,10 @@ function pythonSpawn(){
     // Event handler for receiving data from the Python process
     pythonProcess.stdout.on('data', (data) => {
         const response = data.toString().trim();
-        console.log('Received response from Python process:', response);
+        console.log('Received response from Python process:\n', response);
 
         // Perform actions or send the response to the chat
-        // twitchClient.say(process.env.TWITCH_CHANNEL, response);
+        twitchClient.say(process.env.TWITCH_CHANNEL, response);
     });
 
     // Event handler for handling errors in the Python process
@@ -161,7 +161,7 @@ async function main() {
             
             // Respond to first message in stream, trigger Nightbot !hi command
             if ( !chatCount ) {
-                twitchClient.say(channel, `Eye aye ayyyy! Welcome to the stream @${context.username} ~ GlitchCat GlitchCat GlitchCat `);
+                twitchClient.say(channel, `Ohowdy gozaimasu! Welcome to the stream @${context.username} ~ GlitchCat GlitchCat GlitchCat `);
                 // Mark the user as having chatted
                 usersChatted.set(context.username, 1);
                 console.log(usersChatted)
@@ -172,8 +172,8 @@ async function main() {
                 usersChatted.set(context.username, chatCount+1);
             };
 
-            // Send the message to the Python process for processing
-            pythonProcess.stdin.write(`${message}\n`);
+            // Send the username and message to the Python process for processing
+            pythonProcess.stdin.write(`${context.username}\n${message}\n`);
         } else {
             // Auto-check and respond to bots
             for (const key of Object.keys(botMessages)) {
