@@ -173,7 +173,14 @@ async function main() {
             };
 
             // Send the username and message to the Python process for processing
-            pythonProcess.stdin.write(`${context.username}\n${message}\n`);
+            // Ensure message is not chat command
+            if (!message.startsWith("!") || !/^![a-zA-Z]/.test(message)) {
+                pythonProcess.stdin.write(`${context.username}\n${message}\n`);
+            }
+            else if (message.startsWith("!chat ")){
+                console.log(`LLM Input (WIP): ${message}`)
+            }
+
         } else {
             // Auto-check and respond to bots
             for (const key of Object.keys(botMessages)) {

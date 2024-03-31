@@ -22,13 +22,16 @@ def process_message(username,message):
     # print(f"Hello, {username}, I have received your message '{message}'.")
     # print(f" Your previous message was '{previous_message}'.")
 
-    response = translator.translate(message, src='en', dest='ja').text
+    # Detect language
+    det_lang = translator.detect(message).lang
+    if det_lang == 'en':
+        tr_message = translator.translate(message, src='en', dest='ja').text
+    else:
+        tr_message = translator.translate(message, src='auto', dest='en').text
     # <class 'googletrans.models.Translated'>
     # Translated(src=en, dest=ja, text=テスト, pronunciation=Tesuto, extra_data="{'translat...")
-    if translator.detect(response).lang == 'ja':
-        response = (f"! {username}:" + response)
-    else:
-        response = ''
+    
+    response = (f"! {username}[{det_lang}]:" + tr_message)
 
     # Update the previous message for the user
     previous_messages[username] = message
