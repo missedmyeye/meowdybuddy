@@ -49,8 +49,13 @@ function pythonSpawn(){
         const response = data.toString().trim();
         console.log('Received response from Python process:\n', response);
 
-        // Perform actions or send the response to the chat
-        twitchClient.say(process.env.TWITCH_CHANNEL, response);
+        // Split response into parts based on a delimiter
+        const parts = response.split('###');
+
+        // Iterate over each part and send it to the chat
+        parts.forEach(part => {
+            twitchClient.say(process.env.TWITCH_CHANNEL, part);
+        });
     });
 
     // Event handler for handling errors in the Python process
@@ -157,29 +162,31 @@ async function main() {
         const chatCount = usersChatted.get(context.username);
 
         if ( isNotBot) {
-            console.log(`${context.username} messages in stream: ${chatCount}`)
-            
-            // Respond to first message in stream, trigger Nightbot !hi command
-            if ( !chatCount ) {
-                twitchClient.say(channel, `Ohowdy gozaimasu! Welcome to the stream @${context.username} ~ GlitchCat GlitchCat GlitchCat `);
-                // Mark the user as having chatted
-                usersChatted.set(context.username, 1);
-                console.log(usersChatted)
+            if (context.username != process.env.TWITCH_CHANNEL){
+                console.log(`${context.username} messages in stream: ${chatCount}`)
+
+                // Respond to first message in stream, trigger Nightbot !hi command
+                if ( !chatCount ) {
+                    twitchClient.say(channel, `Ohowdy gozaimasu! Welcome to the stream @${context.username} ~ GlitchCat GlitchCat GlitchCat `);
+                    // Mark the user as having chatted
+                    usersChatted.set(context.username, 1);
+                    console.log(usersChatted)
+                }
+                // If user sends more than 1 message, shoutout to user
+                else if ( chatCount == 1 ){  
+                    twitchClient.say(channel, `Go check out @${context.username} at Twitch.tv/${context.username} Poooound`);
+                    usersChatted.set(context.username, chatCount+1);
+                };
             }
-            // If user sends more than 1 message, shoutout to user
-            else if ( chatCount == 1 ){  
-                twitchClient.say(channel, `Go check out @${context.username} at Twitch.tv/${context.username} Poooound`);
-                usersChatted.set(context.username, chatCount+1);
-            };
 
             // Send the username and message to the Python process for processing
             // Ensure message is not chat command
-            if (!message.startsWith("!") || !/^![a-zA-Z]/.test(message)) {
+            if (!message.startsWith("!") || !/^![a-zA-Z]/.test(message) || message.startsWith("!chat ")) {
                 pythonProcess.stdin.write(`${context.username}\n${message}\n`);
             }
-            else if (message.startsWith("!chat ")){
-                console.log(`LLM Input (WIP): ${message}`)
-            }
+            // else if (message.startsWith("!chat ")){
+            //     console.log(`LLM Input (WIP): ${message}`)
+            // }
 
         } else {
             // Auto-check and respond to bots
