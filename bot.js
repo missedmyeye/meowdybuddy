@@ -177,6 +177,16 @@ async function main() {
                     twitchClient.say(channel, `Go check out @${context.username} at Twitch.tv/${context.username} Poooound`);
                     usersChatted.set(context.username, chatCount+1);
                 };
+            }else {
+                // Auto-check and respond to bots
+                for (const key of Object.keys(botMessages)) {
+                    if (message.includes(key)) {
+                        const response = botMessages[key];
+                        // Respond with the corresponding value
+                        twitchClient.say(channel, response);
+                        break; // Stop checking once a match is found
+                    }
+                }
             }
 
             // Send the username and message to the Python process for processing
