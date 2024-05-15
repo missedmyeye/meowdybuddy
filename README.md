@@ -1,4 +1,5 @@
- MeowdyBuddy: Twitch Chatbot with Python capabilities
+# MeowdyBuddy: Twitch Chatbot with Python capabilities
+ See it in action on [my Twitch channel](https://www.twitch.tv/youmissedmyeye)!
 ## Table of Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
@@ -6,6 +7,7 @@
 - [Creating a Twitch Chatbot](#creating-a-twitch-chatbot)
 - [Set Up .env File](#set-up-env-file)
 - [Running the Chatbot](#running-the-chatbot)
+- [Automatic Responses](#automatic-responses)
 - [Further Customisation](#further-customisation)
 
 ## Overview
@@ -88,7 +90,7 @@ LLM_PORT = 8080
 - `TWITCH_CLIENT_ID`: Obtained when [creating your chatbot](#creating-a-twitch-chatbot)
 - `TWITCH_CLIENT_SECRET`: Obtained when [creating your chatbot](#creating-a-twitch-chatbot)
 - `PYTHON_SCRIPT`: File name of python script that will be acting on the input messages. Messages from a user in `BOT_LIST` or a chat command e.g. "!hi user1234" will be ignored.
-- `BOT_LIST`: List of excluded bots/users. Python script will not act on messages from them, make sure to include `TWITCH_BOT_USERNAME`.
+- `BOT_LIST`: List of excluded bots/users. Python script will not act on messages from them, make sure to include `TWITCH_BOT_USERNAME`. I simultaneously run a chatbot [Nightbot](https://nightbot.tv/)(which I used before this project) and the extension [Pokemon Community Game](https://www.twitch.tv/directory/category/pokemon-community-game), so I don't want my Python script to be acting on their automated messages as well.
 - `LLM_PORT`: localhost port which your LLM server has exposed.
 ## Running the Chatbot
 From the repository root folder, start up the chatbot:
@@ -121,6 +123,14 @@ refresh token: abcdefgh
 Connected to Twitch chat!
 ```
 Make sure your local LLM server is up and running, and you should be good to go. Input "!chat " before your message to talk to your LLM! Have fun!
+## Automatic Responses
+The file `bot_messages.json` contains a dictionary of messages that the chatbot will auto respond to, if mentioned by the channel owner or any of the users in `BOT_LIST`. The key is the message it will look out for, while the value is the automatic response.
+```
+{
+    "Bot message goes here.":"Your intended response goes here."
+}
+```
+For example, if the channel owner sends the message "Bot message goes here.", the chatbot will automatically reply "Your intended response goes here."
 ## Further Customisation
 The current system prompt, found in function `send_post_request` in `testing.py`, is as such:
 ```python
