@@ -56,4 +56,84 @@ Specifying the scope here is crucial, as it determines your app's access to info
 ```bash
 twitch token -u -s 'chat:read chat:edit'
 ```
-A browser will be opened for you to authorize with your chatbot account, following which your `User Access Token` and `Refresh Token` will be provided in your terminal output.
+A browser will be opened for you to authorize with your chatbot account, following which your `User Access Token` and `Refresh Token` will be provided in your terminal output. Do not share this information. Please save the provided information in the repository root folder under `tokens.json` in the following format:
+```
+{
+  "access_token": "xxxxxxxxxxxxxxxxxxx",
+  "refresh_token": "xxxxxxxxxxxxxxxxxxx",
+  "scope": [
+    "chat:edit",
+    "chat:read"
+  ],
+  "token_type": "bearer",
+  "expires_in": 14688
+}
+```
+## Set Up .env File
+Create a file in your repository root folder `.env`. It should have the following parameters in this format:
+```
+TWITCH_CHANNEL = "myTwitchChannel"
+TWITCH_BOT_USERNAME = "ChatBotName"
+BOT_LIST=bot1,bot2,bot3,ChatBotName
+TWITCH_CLIENT_ID = "xxxxxxxxxxxxxxxxxxxx"
+TWITCH_CLIENT_SECRET = "xxxxxxxxxxxxxxxxxxxx"
+PYTHON_SCRIPT = "testing.py"
+LLM_PORT = 8080
+```
+- `TWITCH_CHANNEL`: The name of your Twitch channel.
+- `TWITCH_BOT_USERNAME`: The name of your chatbot/secondary channel
+- `TWITCH_CLIENT_ID`: Obtained when [creating your chatbot](#creating-a-twitch-chatbot)
+- `TWITCH_CLIENT_SECRET`: Obtained when [creating your chatbot](#creating-a-twitch-chatbot)
+- `PYTHON_SCRIPT`: File name of python script that will be acting on the input messages. Messages from a user in `BOT_LIST` or a chat command e.g. "!hi user1234" will be ignored.
+- `BOT_LIST`: List of excluded bots/users. Python script will not act on messages from them, make sure to include `TWITCH_BOT_USERNAME`.
+- `LLM_PORT`: localhost port which your LLM server has exposed.
+## Running the Chatbot
+From the repository root folder, start up the chatbot:
+```bash
+$ npm start
+
+> meowdybuddy@1.0.0 start
+> node bot.js
+
+Connected to Twitch chat!
+```
+Your access token expires every few hours, so in the event it has expired when you start it up, it should refresh your access token and update in `tokens.json` automatically. Then it will attempt to connect to Twitch again.
+```bash
+$ npm start
+
+> meowdybuddy@1.0.0 start
+> node bot.js
+
+[17:25] error: Login authentication failed
+Login authentication failed
+Refreshing access token...
+refresh token: abcdefgh
+{
+  access_token: 'xxxxxxxxxxxxxxx',
+  expires_in: 14404,
+  refresh_token: 'abcdefgh',
+  scope: [ 'chat:edit', 'chat:read' ],
+  token_type: 'bearer'
+}
+Connected to Twitch chat!
+```
+Make sure your local LLM server is up and running, and you should be good to go. Input "!chat " before your message to talk to your LLM! Have fun!
+## Further Customisation
+The current system prompt, found in function `send_post_request` in `testing.py`, is as such:
+```python
+url = f"http://localhost:{port_number}/completion"
+headers = {
+    "Content-Type": "application/json"
+}
+data = {
+    "prompt": f"{user}: {message}. {twitch_bot_username}:",
+    "stop": [f"{user}:",":"],
+    "system_prompt": {
+        "prompt": f"You are {twitch_bot_username}, a cheerful and helpful cat assistant \
+            who speaks like a cat. You occasionally pepper your conversation with cat sounds.",
+        "anti_prompt": f"{user}:",
+        "assistant_name": f"{twitch_bot_username}:"
+    }
+}
+```
+I currently use llama2-7b-chat, quantized to 4 bits. Do adjust the prompt accordingly to cater to your specific needs. If you are running your model on the cloud, do update the URL as well. This will be made configurable in future updates.
