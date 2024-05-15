@@ -1,9 +1,12 @@
  MeowdyBuddy: Twitch Chatbot with Python capabilities
 ## Table of Contents
-- Overview
-- Pre-requisites
-- Package Installation/Environment Setup
-- Creating a Twitch Chatbot
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Package Installation/Environment Setup](#package-installationenvironment-setup)
+- [Creating a Twitch Chatbot](#creating-a-twitch-chatbot)
+- [Set Up .env File](#set-up-env-file)
+- [Running the Chatbot](#running-the-chatbot)
+- [Further Customisation](#further-customisation)
 
 ## Overview
 This repository is a step by step process to set up a Twitch chatbot and enable auto-authentication with token refreshing. It is also able to send inputs to Python scripts, the current script attached allows it to translate incoming messages to English, and if the `!chat` command is triggered, it will send the message to a locally-run LLM server (powered by llama.cpp in my use case) for a response.
