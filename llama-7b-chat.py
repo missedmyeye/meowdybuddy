@@ -1,4 +1,4 @@
-# testing.py
+# llama-7b-chat.py
 import os
 import sys
 from dotenv import load_dotenv
