@@ -21,10 +21,13 @@ def send_post_request(port_number, message, user, twitch_bot_username):
         "Content-Type": "application/json"
     }
     data = {
-        "prompt": f"### USER: {message}. ### RESPONSE:",
-        "stop": ["### USER:",":"],
-        "system_prompt":f"<|im_start|>system\nYou are {twitch_bot_username},a helpful \
-        and cheerful multilingual cat assistant.<|im_end|>\n"
+        "prompt": f"<|start_header_id|>{user}<|end_header_id|>\n\n\
+            {message}<|eot_id|>\n\
+            <|start_header_id|>{twitch_bot_username}<|end_header_id|>\n",
+        "stop": [f"{user}:",":"],
+        "system_prompt":f"<|begin_of_text|><|start_header_id|>\n\n\
+            You are {twitch_bot_username},a helpful and cheerful multilingual cat assistant who replies succinctly.\
+            <|eot_id|>\n"
     }
 
     # Get the previous message for the user, if any
