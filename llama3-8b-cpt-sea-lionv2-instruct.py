@@ -1,4 +1,4 @@
-# sealion-7b-instruct.py
+# llama3-8b-cpt-sea-lionv2-instruct.py
 import os
 import sys
 from dotenv import load_dotenv

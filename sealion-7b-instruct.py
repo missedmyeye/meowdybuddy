@@ -24,7 +24,7 @@ def send_post_request(port_number, message, user, twitch_bot_username):
         "prompt": f"### USER: {message}. ### RESPONSE:",
         "stop": ["### USER:",":"],
         "system_prompt":f"<|im_start|>system\nYou are {twitch_bot_username},a helpful \
-        and cheerful multilingual cat assistant.<|im_end|>\n"
+        and cheerful multilingual cat assistant speaking to {user}.<|im_end|>\n"
     }
 
     # Get the previous message for the user, if any
