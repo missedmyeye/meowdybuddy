@@ -24,7 +24,6 @@ def send_post_request(port_number, message, user, twitch_bot_username):
             }
         )
     else:
-        # print("No message history.\n")
         previous_messages[user] = [
             {
                 "role":"user",
@@ -42,24 +41,10 @@ def send_post_request(port_number, message, user, twitch_bot_username):
         "model":os.getenv("OLLAMA_MODEL"),
         "messages":message_history,
         "stream":False
-        # "prompt": f"<|start_header_id|>{user}<|end_header_id|>\n\n\
-        #     {message}<|eot_id|>\n\
-        #     <|start_header_id|>{twitch_bot_username}<|end_header_id|>\n",
-        # "stop": [f"{user}:",":"],
-        # "system_prompt":f"<|begin_of_text|><|start_header_id|>\n\n\
-        #     You are {twitch_bot_username},a helpful and cheerful multilingual cat assistant who replies succinctly.\
-        #     <|eot_id|>\n"
     }
 
-    # Get the previous message for the user, if any
-    # previous_message = str(previous_messages.get(user))
-
-    # Update "prompt" in "system_prompt" if previous_message exists
-    # if previous_message.startswith("!chat "):
-    #     data["system_prompt"]["prompt"] += f" The previous message was {previous_message}"
-
     try:
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=300)
 
         if response.status_code == 200:
             json_response = response.json()
@@ -74,24 +59,10 @@ def send_post_request(port_number, message, user, twitch_bot_username):
         else:
             print(f"Error: {response.status_code}")
             return None
-    except:
+    except Exception:
         print("Error from server: ",Exception)
 
 def process_message(username,message):
-    # global previous_messages
-
-    # Get the previous message for the user, if any
-    # previous_message = previous_messages.get(username)
-
-    # Your logic for processing the message and generating a response
-    # For now, just echoing the received message along with the previous message
-    # response = f"Hello, {username}, I have received your message '{message}'."
-
-    # if previous_message:
-    #     response += f" Your previous message was '{previous_message}'."
-    # print(f"Hello, {username}, I have received your message '{message}'.")
-    # print(f" Your previous message was '{previous_message}'.")
-
     # Detect language
     det_lang = translator.detect(message).lang
     if det_lang == 'en':
