@@ -12,7 +12,7 @@ translator = Translator()
 # Variable to store the previous message history
 previous_messages = {}
 
-def send_post_request(port_number, message, user, twitch_bot_username):
+def send_post_request(port_number, message, user):
 
     global previous_messages
 
@@ -30,7 +30,7 @@ def send_post_request(port_number, message, user, twitch_bot_username):
                 "content":f"{message}"
             }
         ]
-    
+
     message_history = previous_messages.get(user)
 
     url = f"http://localhost:{port_number}/api/chat"
@@ -92,9 +92,8 @@ def main():
         if message.startswith("!chat "):
             message = message[len("!chat "):]  # Remove "!chat " prefix
             port_number = os.getenv("LLM_PORT")
-            twitch_bot_username = os.getenv("TWITCH_BOT_USERNAME")
 
-            content = send_post_request(port_number, message, username, twitch_bot_username)
+            content = send_post_request(port_number, message, username)
             print(f"###To {username}: {content}")
         # Ensure the output is flushed to be immediately available to the Node.js process
         sys.stdout.flush()
