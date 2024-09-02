@@ -1,4 +1,8 @@
-# llama3-8b-cpt-sea-lionv2-instruct.py
+"""Python script for handling messages via Ollama server.
+Additionally translates English messages to Japanese,
+And messages in other languages to English.
+"""
+# ollama.py
 import os
 import sys
 from dotenv import load_dotenv
@@ -13,8 +17,17 @@ translator = Translator()
 previous_messages = {}
 
 def send_post_request(port_number, message, user):
+    """This function appends the user's message to message history,
+    then proceeds to send POST request to the LLM server, returning the response.
 
-    global previous_messages
+    Args:
+        port_number (int): Port number of LLM server
+        message (str): input message from user
+        user (str): Twitch username of user
+
+    Returns:
+        str: Response message from LLM
+    """
 
     if previous_messages.get(user):
         previous_messages[user].append(
@@ -63,23 +76,32 @@ def send_post_request(port_number, message, user):
         print("Error from server: ",Exception)
 
 def process_message(username,message):
+    """Translates English messages to Japanese,
+    and messages in other languages to English
+
+    Args:
+        username (str): Twitch username of user
+        message (str): message sent by user
+
+    Returns:
+        str: Translated message
+    """
     # Detect language
-    det_lang = translator.detect(message).lang
+    det_lang = translator.detect(message).lang # type: ignore
     if det_lang == 'en':
-        tr_message = translator.translate(message, src='en', dest='ja').text
+        tr_message = translator.translate(message, src='en', dest='ja').text # type: ignore
     else:
-        tr_message = translator.translate(message, src='auto', dest='en').text
+        tr_message = translator.translate(message, src='auto', dest='en').text # type: ignore
     # <class 'googletrans.models.Translated'>
     # Translated(src=en, dest=ja, text=テスト, pronunciation=Tesuto, extra_data="{'translat...")
 
     response = f"! {username}[{det_lang}]:" + tr_message
 
-    # Update the previous message for the user
-    # previous_messages[username] = message
-
     return response
 
 def main():
+    """Main function of script.
+    """
     while True:
         # Read the username and message from standard input
         username = sys.stdin.readline().strip()
