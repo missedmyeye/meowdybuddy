@@ -72,8 +72,8 @@ def send_post_request(port_number, message, user):
         else:
             print(f"Error: {response.status_code}")
             return None
-    except Exception:
-        print("Error from server: ",Exception)
+    except requests.exceptions.RequestException as e:
+        print("Error from server: ", e)
 
 def process_message(username,message):
     """Translates English messages to Japanese,
