@@ -143,6 +143,50 @@ async function connectClient() {
         }
     }
 }
+
+
+// Function to clip the stream
+async function clipStream() {
+    try {
+        // Get channel ID number first
+        const id_response = await fetch(
+            `https://api.twitch.tv/helix/users?login=${process.env.TWITCH_CHANNEL}`,
+            {
+                method: "GET",
+                headers: {
+                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                    "Authorization": `Bearer ${config.access_token}`
+                }
+            }
+        );
+        const id_data = await id_response.json();
+        const channel_id = id_data.data[0].id;
+        console.log(`Channel ID for ${process.env.TWITCH_CHANNEL}:`, channel_id);
+
+        const response = await fetch(
+            `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}`,
+            {
+                method: "POST",
+                headers: {
+                    "Client-Id": process.env.TWITCH_CLIENT_ID,
+                    "Authorization": `Bearer ${config.access_token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "has_delay": false
+                })
+            }
+        );
+        const data = await response.json();
+        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error creating clip:', error);
+        // Not throwing error because not critical to stream operation
+    }
+}
+
+// Main function
 async function main() {
     // Start connecting the client
     await connectClient();
@@ -194,9 +238,10 @@ async function main() {
             if (!message.startsWith("!") || !/^![a-zA-Z]/.test(message) || message.startsWith("!chat ")) {
                 pythonProcess.stdin.write(`${context.username}\n${message}\n`);
             }
-            // else if (message.startsWith("!chat ")){
-            //     console.log(`LLM Input (WIP): ${message}`)
-            // }
+            else if (message.startsWith("!clip")){
+                const clip = await clipStream();
+                twitchClient.say(channel, `Clip created! Watch it here: https://clips.twitch.tv/${clip.data[0].id}`);
+            }
 
         } else {
             // Auto-check and respond to bots

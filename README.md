@@ -57,9 +57,9 @@ Proceed with [configuring your Twitch CLI](https://dev.twitch.tv/docs/cli/config
 Once that is done, log in to your browser with your secondary account, i.e. *your chatbot's account*.
 
 Next on the agenda is to [Get a User Access Token](https://dev.twitch.tv/docs/cli/token-command/#user-access-token).
-Specifying the scope here is crucial, as it determines your app's access to information. Here is a [list of scopes](https://dev.twitch.tv/docs/authentication/scopes/#twitch-api-scopes) that you may wish to use. For a chatbot, the scopes required are `chat:read` and `chat:edit`, meaning to read and write to the channel. So the command will be:
+Specifying the scope here is crucial, as it determines your app's access to information. Here is a [list of scopes](https://dev.twitch.tv/docs/authentication/scopes/#twitch-api-scopes) that you may wish to use. For a chatbot, the scopes required are `chat:read` and `chat:edit`, meaning to read and write to the channel, as well as `clips:edit` to create clips. So the command will be:
 ```bash
-twitch token -u -s 'chat:read chat:edit'
+twitch token -u -s 'chat:read chat:edit clips:edit'
 ```
 A browser will be opened for you to authorize with your chatbot account, following which your `User Access Token` and `Refresh Token` will be provided in your terminal output. Do not share this information. Please save the provided information in the repository root folder under `tokens.json` in the following format:
 ```
@@ -68,7 +68,8 @@ A browser will be opened for you to authorize with your chatbot account, followi
   "refresh_token": "xxxxxxxxxxxxxxxxxxx",
   "scope": [
     "chat:edit",
-    "chat:read"
+    "chat:read",
+    "clips:edit"
   ],
   "token_type": "bearer",
   "expires_in": 14688
