@@ -3,11 +3,16 @@ Additionally translates English messages to Japanese,
 And messages in other languages to English.
 """
 # ollama.py
+import logging
 import os
 import sys
 from dotenv import load_dotenv
 import requests
 from googletrans import Translator
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -46,7 +51,7 @@ def send_post_request(port_number, message, user):
 
     message_history = previous_messages.get(user)
 
-    url = f"http://localhost:{port_number}/api/chat"
+    url = f"http://localhost:{port_number}/v1/chat/completions"
     headers = {
         "Content-Type": "application/json"
     }
@@ -61,19 +66,20 @@ def send_post_request(port_number, message, user):
 
         if response.status_code == 200:
             json_response = response.json()
-            response = json_response.get("message")["content"]
+            response_message = json_response.get("choices")[0]["message"]["content"]
             previous_messages[user].append(
                 {
                     "role":"assistant",
                     "content":response
                 }
             )
-            return json_response.get("message")["content"]
+            return response_message
         else:
-            print(f"Error: {response.status_code}")
-            return None
+            logger.info("Error: %s", response.status_code)
+            return f"{os.getenv('OLLAMA_MODEL')} is not available at the moment, please try again later."
     except requests.exceptions.RequestException as e:
-        print("Error from server: ", e)
+        logger.info("Error from server: %s", e)
+        return f"{os.getenv('OLLAMA_MODEL')} is not available at the moment, please try again later."
 
 def process_message(username,message):
     """Translates English messages to Japanese,
@@ -86,6 +92,7 @@ def process_message(username,message):
     Returns:
         str: Translated message
     """
+    
     # Detect language
     det_lang = translator.detect(message).lang # type: ignore
     if det_lang == 'en':
