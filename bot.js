@@ -42,7 +42,7 @@ const botMessages = JSON.parse(fs.readFileSync('bot_messages.json', 'utf8'));
 
 function pythonSpawn(){
     // Spawn the Python process
-    const pythonProcess = spawn('python', [process.env.PYTHON_SCRIPT]);
+    const pythonProcess = spawn('python', [`src/${process.env.PYTHON_SCRIPT}`]);
 
     // Event handler for receiving data from the Python process
     pythonProcess.stdout.on('data', (data) => {
@@ -60,7 +60,7 @@ function pythonSpawn(){
 
     // Event handler for handling errors in the Python process
     pythonProcess.stderr.on('data', (data) => {
-        console.error('Error from Python process:', data.toString().trim());
+        console.error('Python process log:', data.toString().trim());
     });
 
     // Event handler for when the Python process exits
