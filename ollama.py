@@ -9,6 +9,7 @@ import sys
 from dotenv import load_dotenv
 import requests
 from googletrans import Translator
+from google_send import generate_text_with_gemini
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -81,6 +82,56 @@ def send_post_request(port_number, message, user):
         logger.info("Error from server: %s", e)
         return f"{os.getenv('OLLAMA_MODEL')} is not available at the moment, please try again later."
 
+
+def send_google_request(message, user):
+    """This function appends the user's message to message history,
+    then proceeds to send POST request to the Google Gemini API, returning the response.
+
+    Args:
+        message (str): input message from user
+        user (str): Twitch username of user
+
+    Returns:
+        str: Response message from Google Gemini API
+    """
+    if previous_messages.get(user):
+        previous_messages[user].append(
+            {
+                "role":"user",
+                "parts":[f"{message}"]
+            }
+        )
+    else:
+        previous_messages[user] = [
+            {
+                "role":"user",
+                "parts":[f"{message}"]
+            }
+        ]
+
+    message_history = previous_messages.get(user)
+
+    system_instruct = """
+        You are Meowdy Buddy, a helpful and cheerful multilingual cat assistant
+        who replies succinctly, occasionally adding cat sounds to speech.
+        """
+
+    response = generate_text_with_gemini(
+        system_instruction=system_instruct,
+        prompt=message_history
+        )
+    if response:
+        previous_messages[user].append(
+            {
+                "role":"assistant",
+                "parts":[response]
+            }
+        )
+        return response
+    else:
+        return "An error occurred while generating text with Gemini."
+
+
 def process_message(username,message):
     """Translates English messages to Japanese,
     and messages in other languages to English
@@ -121,8 +172,17 @@ def main():
         if message.startswith("!chat "):
             message = message[len("!chat "):]  # Remove "!chat " prefix
             port_number = os.getenv("LLM_PORT")
+            chat = os.getenv("CHAT")
 
-            content = send_post_request(port_number, message, username)
+            match chat:
+                case "ollama":
+                    logger.info("Sending message to Ollama server...")
+                    content = send_post_request(port_number, message, username)
+                case "google":
+                    logger.info("Sending message to Google Gemini API...")
+                    content = send_google_request(message, username)
+
+            # content = send_post_request(port_number, message, username)
             print(f"###To {username}: {content}")
         # Ensure the output is flushed to be immediately available to the Node.js process
         sys.stdout.flush()
