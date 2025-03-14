@@ -57,9 +57,9 @@ Proceed with [configuring your Twitch CLI](https://dev.twitch.tv/docs/cli/config
 Once that is done, log in to your browser with your secondary account, i.e. *your chatbot's account*.
 
 Next on the agenda is to [Get a User Access Token](https://dev.twitch.tv/docs/cli/token-command/#user-access-token).
-Specifying the scope here is crucial, as it determines your app's access to information. Here is a [list of scopes](https://dev.twitch.tv/docs/authentication/scopes/#twitch-api-scopes) that you may wish to use. For a chatbot, the scopes required are `chat:read` and `chat:edit`, meaning to read and write to the channel. So the command will be:
+Specifying the scope here is crucial, as it determines your app's access to information. Here is a [list of scopes](https://dev.twitch.tv/docs/authentication/scopes/#twitch-api-scopes) that you may wish to use. For a chatbot, the scopes required are `chat:read` and `chat:edit`, meaning to read and write to the channel, as well as `clips:edit` to create clips. So the command will be:
 ```bash
-twitch token -u -s 'chat:read chat:edit'
+twitch token -u -s 'chat:read chat:edit clips:edit'
 ```
 A browser will be opened for you to authorize with your chatbot account, following which your `User Access Token` and `Refresh Token` will be provided in your terminal output. Do not share this information. Please save the provided information in the repository root folder under `tokens.json` in the following format:
 ```
@@ -68,7 +68,8 @@ A browser will be opened for you to authorize with your chatbot account, followi
   "refresh_token": "xxxxxxxxxxxxxxxxxxx",
   "scope": [
     "chat:edit",
-    "chat:read"
+    "chat:read",
+    "clips:edit"
   ],
   "token_type": "bearer",
   "expires_in": 14688
@@ -82,8 +83,9 @@ TWITCH_BOT_USERNAME = "ChatBotName"
 BOT_LIST=bot1,bot2,bot3,ChatBotName
 TWITCH_CLIENT_ID = "xxxxxxxxxxxxxxxxxxxx"
 TWITCH_CLIENT_SECRET = "xxxxxxxxxxxxxxxxxxxx"
-PYTHON_SCRIPT = "testing.py"
-LLM_PORT = 8080
+PYTHON_SCRIPT = "ollama.py"
+OLLAMA_MODEL = "llama3.1"
+LLM_PORT = 11434
 ```
 - `TWITCH_CHANNEL`: The name of your Twitch channel.
 - `TWITCH_BOT_USERNAME`: The name of your chatbot/secondary channel
@@ -91,7 +93,8 @@ LLM_PORT = 8080
 - `TWITCH_CLIENT_SECRET`: Obtained when [creating your chatbot](#creating-a-twitch-chatbot)
 - `PYTHON_SCRIPT`: File name of python script that will be acting on the input messages. Messages from a user in `BOT_LIST` or a chat command e.g. "!hi user1234" will be ignored.
 - `BOT_LIST`: List of excluded bots/users. Python script will not act on messages from them, make sure to include `TWITCH_BOT_USERNAME`. I simultaneously run a chatbot [Nightbot](https://nightbot.tv/)(which I used before this project) and the extension [Pokemon Community Game](https://www.twitch.tv/directory/category/pokemon-community-game), so I don't want my Python script to be acting on their automated messages as well.
-- `LLM_PORT`: localhost port which your LLM server has exposed.
+- `OLLAMA_MODEL`: If using `ollama.py` to interact with an LLM running on Ollama, use this parameter to specify the model name. Include the tag if necessary, e.g. `llama3.1:8b`
+- `LLM_PORT`: localhost port which your LLM server has exposed. Default port for llama.cpp is `8080`, while Ollama's default is `11434`.
 ## Running the Chatbot
 From the repository root folder, start up the chatbot:
 ```bash
