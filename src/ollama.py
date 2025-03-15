@@ -146,12 +146,27 @@ def process_message(username,message):
     
     # Detect language
     det_lang = translator.detect(message).lang # type: ignore
-    if det_lang == 'en':
-        tr_message = translator.translate(message, src='en', dest='ja').text # type: ignore
+
+    chat = os.getenv("CHAT", "ollama")
+    if chat == "google":
+        system_instruct = """You are a translation engine. Your sole purpose is to translate text.
+
+        - If the input is in English, translate it to Japanese.
+        - If the input is not in English, translate it to English.
+
+        You must only output the translated text. Do not include any additional explanations, notes, formatting, or any other text besides the translated content.        
+        """
+        tr_message = generate_text_with_gemini(
+            system_instruction=system_instruct,
+            prompt=message
+            )
     else:
-        tr_message = translator.translate(message, src='auto', dest='en').text # type: ignore
-    # <class 'googletrans.models.Translated'>
-    # Translated(src=en, dest=ja, text=テスト, pronunciation=Tesuto, extra_data="{'translat...")
+        if det_lang == 'en':
+            tr_message = translator.translate(message, src='en', dest='ja').text # type: ignore
+        else:
+            tr_message = translator.translate(message, src='auto', dest='en').text # type: ignore
+        # <class 'googletrans.models.Translated'>
+        # Translated(src=en, dest=ja, text=テスト, pronunciation=Tesuto, extra_data="{'translat...")
 
     response = f"! {username}[{det_lang}]:" + tr_message
 
@@ -172,7 +187,7 @@ def main():
         if message.startswith("!chat "):
             message = message[len("!chat "):]  # Remove "!chat " prefix
             port_number = os.getenv("LLM_PORT")
-            chat = os.getenv("CHAT")
+            chat = os.getenv("CHAT", "ollama")
 
             match chat:
                 case "ollama":
