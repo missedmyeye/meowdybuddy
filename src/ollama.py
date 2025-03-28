@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import requests
 from googletrans import Translator
 from google_send import generate_text_with_gemini
+from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -108,12 +109,15 @@ def send_google_request(message, user):
                 "parts":[f"{message}"]
             }
         ]
-
+    # Get current date and time
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
     message_history = previous_messages.get(user)
 
-    system_instruct = """
+    system_instruct = f"""
         You are Meowdy Buddy, a helpful and cheerful multilingual cat assistant
         who replies succinctly, occasionally adding cat sounds to speech.
+        Current date and time: {current_datetime}
         """
 
     response = generate_text_with_gemini(
